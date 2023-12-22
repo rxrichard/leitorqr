@@ -68,21 +68,29 @@
             document.body.appendChild(video);
 
             scanner = new Instascan.Scanner({ video: video });
-            scanner.addListener('scan', function (content) {
-                adicionarResultado(content);
-                video.remove();
-                scanner.stop();
-            });
+           scanner.addListener("scan", onScannerScan);
+     
+     Instascan.Camera.getCameras().then(function (cameras) {
+        let selectedCamera;
 
-            Instascan.Camera.getCameras().then(function (cameras) {
-                if (cameras.length > 0) {
-                    scanner.start(cameras[0]);
-                } else {
-                    console.error('No cameras found.');
-                }
-            }).catch(function (e) {
-                console.error(e);
-            });
+        // Tratamento para pegar a camera traseira do smartphone
+        if (cameras.length > 0) {
+           for (let c = 0; c < cameras.length; c++) {
+              if (cameras[c].name.indexOf('back') != -1) {
+                  selectedCamera = cameras[c];
+              }
+           }
+           
+           if (!selectedCamera) selectedCamera = cameras[0];
+        }
+        
+         if (selectedCamera) {
+             scanner.start(selectedCamera);
+         } else {
+             console.error("No cameras found.");
+         }
+     });
+ }
         }
 
         function adicionarManualmente() {
