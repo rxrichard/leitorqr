@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Leitor QR Code</title>
+    <title>Leitor QR Code - SENAI</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Arial', sans-serif;
             margin: 0;
             padding: 0;
             display: flex;
@@ -14,11 +14,45 @@
             align-items: center;
             justify-content: center;
             height: 100vh;
-            background-color: #f0f0f0;
+            background-color: #f2f2f2;
+            color: #333;
+        }
+
+        #container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        label {
+            font-size: 18px;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 15px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
         }
 
         #result {
             margin-top: 20px;
+            font-size: 16px;
         }
 
         #manualPopup {
@@ -31,31 +65,37 @@
             background-color: #fff;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             z-index: 2;
+            text-align: center;
         }
 
         video {
             max-width: 100%;
             height: auto;
+            margin-bottom: 15px;
         }
     </style>
 </head>
 <body>
 
-    <label for="sala">Sala:</label>
-    <input type="text" id="sala" placeholder="Número da sala">
+    <div id="container">
+        <h1>Leitor QR Code - SENAI</h1>
 
-    <button onclick="iniciarLeituraQRCode()">Ler QR Code</button>
-    <button onclick="abrirPopup()">Adicionar Manualmente</button>
+        <label for="sala">Número da Sala:</label>
+        <input type="text" id="sala" placeholder="Número da sala">
 
-    <div id="result"></div>
+        <button onclick="iniciarLeituraQRCode()">Ler QR Code</button>
+        <button onclick="abrirPopup()">Adicionar Manualmente</button>
 
-    <div id="manualPopup">
-        <label for="manualInfo">Informações:</label>
-        <input type="text" id="manualInfo" placeholder="Digite as informações">
-        <button onclick="adicionarManualmente()">Adicionar</button>
+        <div id="result"></div>
+
+        <div id="manualPopup">
+            <label for="manualInfo">Informações:</label>
+            <input type="text" id="manualInfo" placeholder="Digite as informações">
+            <button onclick="adicionarManualmente()">Adicionar</button>
+        </div>
+
+        <button onclick="exportarTxt()">Exportar</button>
     </div>
-
-    <button onclick="exportarTxt()">Exportar</button>
 
     <script src="https://rawgit.com/schmich/instascan-builds/master/instascan.min.js"></script>
 
@@ -67,22 +107,21 @@
             const video = document.createElement('video');
             document.body.appendChild(video);
 
-            scanner = new Instascan.Scanner({ video: video });
-            scanner.addListener('scan', function (content) {
-                adicionarResultado(content);
-                video.remove();
-                scanner.stop();
-            });
+            const cameras = Instascan.Camera.getCameras();
+            const cameraTraseira = cameras.find(camera => camera.name.toLowerCase().includes('back'));
 
-            Instascan.Camera.getCameras().then(function (cameras) {
-                if (cameras.length > 0) {
-                    scanner.start(cameras[1]);
-                } else {
-                    console.error('No cameras found.');
-                }
-            }).catch(function (e) {
-                console.error(e);
-            });
+            if (cameraTraseira) {
+                scanner = new Instascan.Scanner({ video: video, camera: cameraTraseira });
+                scanner.addListener('scan', function (content) {
+                    adicionarResultado(content);
+                    video.remove();
+                    scanner.stop();
+                });
+
+                scanner.start(cameraTraseira);
+            } else {
+                console.error('Câmera traseira não encontrada.');
+            }
         }
 
         function adicionarManualmente() {
@@ -110,11 +149,12 @@
         }
 
         function exportarTxt() {
+            const nomeArquivo = document.getElementById('sala').value || 'exported_data';
             const textoExportar = listaQRCodes.join('\n');
             const blob = new Blob([textoExportar], { type: 'text/plain' });
             const link = document.createElement('a');
             link.href = window.URL.createObjectURL(blob);
-            link.download = 'exported_data.txt';
+            link.download = nomeArquivo + '.txt';
             link.click();
         }
     </script>
