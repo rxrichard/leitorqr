@@ -1,69 +1,65 @@
-<!DOCTYPE html>
-<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Leitor QR Code</title>
+    <title>Leitor QR Code - SENAI Style</title>
     <style>
         body {
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-family: 'Arial', sans-serif;
             margin: 0;
             padding: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            height: 100vh;
-            background-color: #141414;
+            background-color: #f5f5f5;
+        }
+
+        header {
+            background-color: #00539f;
             color: #fff;
-        }
-
-        #container {
-            background-color: #222;
-            padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            max-width: 400px;
+            padding: 10px;
             width: 100%;
+            text-align: center;
         }
 
-        h1 {
-            color: #e50914;
-            font-size: 24px;
-            margin-bottom: 20px;
+        #logo {
+            width: 100px;
+            height: auto;
+        }
+
+        #content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin: 20px;
+            border-radius: 10px;
+            width: 80%;
         }
 
         label {
-            font-size: 16px;
+            font-size: 18px;
             margin-bottom: 10px;
-            display: block;
-            text-align: left;
-            color: #fff;
         }
 
-        input {
-            width: 100%;
-            padding: 8px;
-            margin-bottom: 15px;
-            box-sizing: border-box;
+        input, button {
+            margin-top: 10px;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
         }
 
         button {
-            background-color: #e50914;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
+            background-color: #00539f;
+            color: #fff;
             cursor: pointer;
-            font-size: 16px;
-            margin: 5px;
         }
 
         #result {
             margin-top: 20px;
-            font-size: 16px;
-            text-align: left;
+            text-align: center;
         }
 
         #manualPopup {
@@ -73,28 +69,29 @@
             left: 50%;
             transform: translate(-50%, -50%);
             padding: 20px;
-            background-color: #222;
+            background-color: #fff;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             z-index: 2;
-            text-align: center;
-            max-width: 300px;
-            width: 100%;
-            color: #fff;
+            border-radius: 10px;
         }
 
         video {
             max-width: 100%;
             height: auto;
-            margin-bottom: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
         }
     </style>
 </head>
 <body>
 
-    <div id="container">
-        <h1>Leitor QR Code - Netflix Style</h1>
+    <header>
+        <img id="logo" src="link-para-a-sua-imagem-logo.png" alt="Logo do SENAI">
+        <h1>Leitor QR Code - Inventário</h1>
+    </header>
 
-        <label for="sala">Número da Sala:</label>
+    <div id="content">
+        <label for="sala">Sala:</label>
         <input type="text" id="sala" placeholder="Número da sala">
 
         <button onclick="iniciarLeituraQRCode()">Ler QR Code</button>
@@ -106,67 +103,8 @@
             <label for="manualInfo">Informações:</label>
             <input type="text" id="manualInfo" placeholder="Digite as informações">
             <button onclick="adicionarManualmente()">Adicionar</button>
+            <button onclick="fecharPopup()">Fechar</button>
         </div>
 
         <button onclick="exportarTxt()">Exportar</button>
     </div>
-
-    <script src="https://rawgit.com/schmich/instascan-builds/master/instascan.min.js"></script>
-
-    <script>
-        let scanner;
-        let listaQRCodes = [];
-
-        function iniciarLeituraQRCode() {
-            const video = document.createElement('video');
-            document.body.appendChild(video);
-
-            scanner = new Instascan.Scanner({ video: video });
-            scanner.addListener('scan', function (content) {
-                adicionarResultado(content);
-                video.remove();
-                scanner.stop();
-            });
-
-           if (cameras.length > 0) {
-  var selectedCam = cameras[0];
-  $.each(cameras, (i, c) => {
-    if (c.name.indexOf('back') != -1) {
-      selectedCam = c;
-      return false;
-    }
-  });
-  scanner.start(selectedCam);
-
-else {
-  console.error('No cameras found.');
-}
-
-        function adicionarManualmente() {
-            const infoManual = document.getElementById('manualInfo').value;
-            adicionarResultado(infoManual);
-            fecharPopup();
-        }
-
-        function abrirPopup() {
-            document.getElementById('manualPopup').style.display = 'block';
-        }
-
-        function fecharPopup() {
-            document.getElementById('manualPopup').style.display = 'none';
-        }
-
-        function adicionarResultado(info) {
-            listaQRCodes.push(info);
-            exibirResultados();
-        }
-
-        function exibirResultados() {
-            const resultDiv = document.getElementById('result');
-            resultDiv.innerHTML = "<strong>Resultados:</strong><br>" + listaQRCodes.join("<br>");
-        }
-
-        function exportarTxt() {
-            const nomeArquivo = document.getElementById('sala').value || 'exported_data';
-            const textoExportar = listaQRCodes.join('\n');
-            const blob = new 
